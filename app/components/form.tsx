@@ -8,6 +8,8 @@ import { useStatVariables } from "../hooks/useStatVariables";
 // TODO api päring lahendada
 // TODO loogiline klasterdamine osad tabelid lähemal, teised kaugemal
 // TODO kaart paremal, vasakul on võimalused, w-full jne uurida
+// TODO maakonnad peab ka sisse pärima
+// TODO kas maakondade matchimine tuleb läbi tuple?
 
 export default function StatisticalDataForm() {
   const {
@@ -19,9 +21,26 @@ export default function StatisticalDataForm() {
 
   const onSubmit = async (data: any) => {
     const postForm = new FormData();
-    console.log(data)
+    const formKeys = Object.keys(data);
 
+    console.log("Data", data.Vaatlusperiood)
 
+    // Iterating unknown variables to list
+    formKeys.forEach((element) => {
+      postForm.append(element, data[element]);
+    });
+
+    postForm.append("Maakond", countyCodeValues)
+
+    const response = await fetch("http://localhost:5000/join", {
+      method: "POST",
+      body: postForm,
+    });
+
+    if (response.ok) {
+      const responseJson = await response.json();
+      console.log(responseJson);
+    }
   };
 
   const [statisticalSetup, setStatisticalSetup] = useState<any[]>([]);
@@ -29,6 +48,8 @@ export default function StatisticalDataForm() {
   const spatialRegionValue = watch("spatialRegion", "");
 
   const maakondStatTables = ["", "PA119", "RV032"];
+
+  const [countyCodeValues, setCountyCodeValues] = useState<any[]>([]);
 
   const getStatisticalData = async (data: string) => {
     const response = await fetch(
@@ -42,6 +63,12 @@ export default function StatisticalDataForm() {
     const filteredResponse = responseJson.variables.filter(
       (obj: any) => obj.code !== "Maakond"
     );
+
+    const countyFilter = responseJson.variables.filter(
+      (obj: any) => obj.code === "Maakond"
+    );
+
+    setCountyCodeValues(countyFilter)
     setStatisticalSetup(filteredResponse);
   };
 

@@ -19,20 +19,16 @@ export default function StatisticalDataForm() {
 
   const onSubmit = async (data: any) => {
     const postForm = new FormData();
-    // postForm.append("title", data.title);
-    // postForm.append("content", data.content);
-    // postForm.append("privacy", data.privacy);
+    console.log(data)
 
-    console.log(postForm);
+
   };
 
   const [statisticalSetup, setStatisticalSetup] = useState<any[]>([]);
 
   const spatialRegionValue = watch("spatialRegion", "");
 
-  //const countyTableValue = watch("count")
-
-  const maakondStatTables = ["", "PA119"];
+  const maakondStatTables = ["", "PA119", "RV032"];
 
   const getStatisticalData = async (data: string) => {
     const response = await fetch(
@@ -83,6 +79,7 @@ export default function StatisticalDataForm() {
                 </option>
               </select>
             </div>
+
             {spatialRegionValue === "Maakond" && (
               <div>
                 <label

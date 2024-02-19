@@ -23,13 +23,19 @@ const Map = () => {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm();
 
+  const [statisticalSetup, setStatisticalSetup] = useState<MainStatVariables[]>(
+    []
+  );
+  const [countyCodeValues, setCountyCodeValues] = useState<string>("");
+  const spatialRegionValue = watch("spatialRegion", "");
   const [renderedGeometries, setRenderedGeometries] = useState<any>(false);
   const [breaks, setBreaks] = useState<number[]>([]);
 
-  const [map, setMap] = useState(null);
+  const maakondStatTables = ["", "PA119", "RV032"];
 
   const classifyValues = (data: any) => {
     const values = data.features.map(
@@ -68,17 +74,11 @@ const Map = () => {
     return "#fff";
   };
 
-  const [statisticalSetup, setStatisticalSetup] = useState<MainStatVariables[]>(
-    []
-  );
-  const [countyCodeValues, setCountyCodeValues] = useState<string>("");
-
+  // TODO formi resettimien on lappes praegu
   const onSubmit = async (data: any) => {
     const postForm = new FormData();
 
     const formKeys = Object.keys(data);
-
-    console.log("Data", data.Vaatlusperiood);
 
     // Iterating unknown variables to list
     formKeys.forEach((element) => {
@@ -100,29 +100,30 @@ const Map = () => {
     }
   };
 
-  const spatialRegionValue = watch("spatialRegion", "");
-
-  const maakondStatTables = ["", "PA119", "RV032"];
-
   const getStatisticalData = async (data: string) => {
-    const response = await fetch(
-      `https://andmed.stat.ee/api/v1/et/stat/${data}`,
-      {
-        method: "GET",
-      }
-    );
-    const responseJson = await response.json();
-    console.log(responseJson.variables);
-    const filteredResponse = responseJson.variables.filter(
-      (obj: MainStatVariables) => obj.code !== "Maakond"
-    );
+    if (data !== "") {
+      const response = await fetch(
+        `https://andmed.stat.ee/api/v1/et/stat/${data}`,
+        {
+          method: "GET",
+        }
+      );
+      const responseJson = await response.json();
+      console.log(responseJson.variables);
+      const filteredResponse = responseJson.variables.filter(
+        (obj: MainStatVariables) => obj.code !== "Maakond"
+      );
 
-    const countyFilter = responseJson.variables.find(
-      (obj: MainStatVariables) => obj.code === "Maakond"
-    );
+      const countyFilter = responseJson.variables.find(
+        (obj: MainStatVariables) => obj.code === "Maakond"
+      );
 
-    setStatisticalSetup(filteredResponse);
-    setCountyCodeValues(countyFilter.values.toString());
+      setStatisticalSetup(filteredResponse);
+      setCountyCodeValues(countyFilter.values.toString());
+    } else {
+      setStatisticalSetup([]);
+      setCountyCodeValues("");
+    }
   };
 
   return (

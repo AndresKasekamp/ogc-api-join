@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useStatVariables } from "../hooks/useStatVariables";
+import dynamic from "next/dynamic";
 
 // TODO maakonnad on kõik võimalused, teised on üks võimalus ainult (et ei oleks liiga keeruline
 // TODO api päring lahendada
@@ -10,6 +11,8 @@ import { useStatVariables } from "../hooks/useStatVariables";
 // TODO kaart paremal, vasakul on võimalused, w-full jne uurida
 // TODO maakonnad peab ka sisse pärima
 // TODO kas maakondade matchimine tuleb läbi tuple?
+// TODO env lisada api lõpp-punktid
+// TODO puhastamine vale req puhul
 
 export default function StatisticalDataForm() {
   const {
@@ -19,18 +22,30 @@ export default function StatisticalDataForm() {
     formState: { errors },
   } = useForm();
 
+  // const DynamicMap = dynamic(() => import("./Map"), {
+  //   ssr: false,
+  // });
+
+
+
+  const [statisticalSetup, setStatisticalSetup] = useState<any[]>([]);
+  const [countyCodeValues, setCountyCodeValues] = useState<string>("");
+
+  const [renderedGeometries, setRenderedGeometries] = useState<any>(false);
+
   const onSubmit = async (data: any) => {
     const postForm = new FormData();
+
     const formKeys = Object.keys(data);
 
-    console.log("Data", data.Vaatlusperiood)
+    console.log("Data", data.Vaatlusperiood);
 
     // Iterating unknown variables to list
     formKeys.forEach((element) => {
       postForm.append(element, data[element]);
     });
 
-    postForm.append("Maakond", countyCodeValues)
+    postForm.append("Maakond", countyCodeValues);
 
     const response = await fetch("http://localhost:5000/join", {
       method: "POST",
@@ -39,17 +54,13 @@ export default function StatisticalDataForm() {
 
     if (response.ok) {
       const responseJson = await response.json();
-      console.log(responseJson);
+      setRenderedGeometries(responseJson);
     }
   };
-
-  const [statisticalSetup, setStatisticalSetup] = useState<any[]>([]);
 
   const spatialRegionValue = watch("spatialRegion", "");
 
   const maakondStatTables = ["", "PA119", "RV032"];
-
-  const [countyCodeValues, setCountyCodeValues] = useState<any[]>([]);
 
   const getStatisticalData = async (data: string) => {
     const response = await fetch(
@@ -64,17 +75,18 @@ export default function StatisticalDataForm() {
       (obj: any) => obj.code !== "Maakond"
     );
 
-    const countyFilter = responseJson.variables.filter(
+    const countyFilter = responseJson.variables.find(
       (obj: any) => obj.code === "Maakond"
     );
 
-    setCountyCodeValues(countyFilter)
+    setCountyCodeValues(countyFilter.values.toString());
     setStatisticalSetup(filteredResponse);
   };
 
   return (
     <>
-      <div className="flex flex-1 flex-col">
+      {/* <DynamicMap geoJsonData={renderedGeometries}/> */}
+      <div className="flex flex-1 flex-col p-24">
         <div>
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">
             OGC API - Joins

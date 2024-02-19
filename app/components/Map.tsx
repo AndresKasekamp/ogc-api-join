@@ -130,7 +130,7 @@ const Map = () => {
     <>
       <div className="flex flex-1 flex-col p-24">
         <div>
-          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">
+          <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-white">
             OGC API - Joins
           </h2>
         </div>

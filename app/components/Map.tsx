@@ -1,5 +1,6 @@
 "use client";
 
+// @ts-ignore
 import GeoStats from "geostats";
 import React, { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
@@ -98,6 +99,7 @@ const Map = () => {
 
     Object.entries(data).forEach(([key, value]) => {
       if (allowedKeys.has(key)) {
+        // @ts-ignore
         postForm.append(key, value);
       }
     });
@@ -112,6 +114,7 @@ const Map = () => {
 
       if (response.ok) {
         const responseJson = await response.json();
+
         classifyValues(responseJson);
         setRenderedGeometries(responseJson);
         setSubmitClicked(false);
@@ -267,6 +270,7 @@ const Map = () => {
         <TileLayer
           attribution="&copy; Maa-amet 2024"
           url="https://tiles.maaamet.ee/tm/wmts/1.0.0/hallkaart/default/{TileMatrixSet}/{z}/{y}/{x}.png"
+          // @ts-ignore
           TileMatrixSet="GMC"
         />
 

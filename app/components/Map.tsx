@@ -1,14 +1,17 @@
 "use client";
 
 import GeoStats from "geostats";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { onEachFeature } from "../utils/renderMap";
+import L from "leaflet";
+import { useLeafletContext } from "@react-leaflet/core";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 
 import { MapContainer, TileLayer, Marker, Popup, GeoJSON } from "react-leaflet";
+import { LatLngBoundsExpression, LatLngExpression } from "leaflet";
 
 interface MainStatVariables {
   code: string;
@@ -35,7 +38,34 @@ const Map = () => {
   const [renderedGeometries, setRenderedGeometries] = useState<any>(false);
   const [breaks, setBreaks] = useState<number[]>([]);
 
+  const bounds: LatLngBoundsExpression = [
+    [57.538569, 20.909516],
+    [59.724195, 29.625813],
+  ];
+
   const maakondStatTables = ["", "PA119", "RV032"];
+
+  const LandBoardWMTS = () => {
+    const context = useLeafletContext();
+
+    useEffect(() => {
+        //if (!mapRef.current) return;
+      const elbHallkaart = L.tileLayer(
+        "https://tiles.maaamet.ee/tm/wmts/1.0.0/hallkaart/default/{TileMatrixSet}/{z}/{y}/{x}.png",
+        { TileMatrixSet: "GMC",
+        attribution: '&copy; Maa-amet 2024' }
+      );
+
+      const container = context.layerContainer || context.map;
+      container.addLayer(elbHallkaart);
+
+      return () => {
+        container.removeLayer(elbHallkaart);
+      };
+    });
+
+    return null;
+  }
 
   const classifyValues = (data: any) => {
     const values = data.features.map(
@@ -228,15 +258,19 @@ const Map = () => {
           width: "65vw",
         }}
         center={[58.86, 25.56]}
+        bounds={bounds}
+        maxBounds={bounds}
+        maxBoundsViscosity={0.9}
         zoom={8}
         scrollWheelZoom={true}
         minZoom={8}
         maxZoom={12}
       >
-        <TileLayer
+        <LandBoardWMTS />
+        {/* <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        /> */}
 
         {renderedGeometries !== false && (
           <>

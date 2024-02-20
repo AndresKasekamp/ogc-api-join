@@ -12,6 +12,7 @@ import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 
 import { MapContainer, TileLayer, Marker, Popup, GeoJSON } from "react-leaflet";
 import { LatLngBoundsExpression, LatLngExpression } from "leaflet";
+import Loader from "./Loader";
 
 interface MainStatVariables {
   code: string;
@@ -20,7 +21,7 @@ interface MainStatVariables {
   values: Array<string>;
 }
 
-// TODO loading spinner üle tuua
+// TODO päringu ebaõnnestumine kommunikeerida
 const Map = () => {
   const {
     register,
@@ -38,34 +39,14 @@ const Map = () => {
   const [renderedGeometries, setRenderedGeometries] = useState<any>(false);
   const [breaks, setBreaks] = useState<number[]>([]);
 
+  const [submitClicked, setSubmitClicked] = useState(false);
+
   const bounds: LatLngBoundsExpression = [
     [57.538569, 20.909516],
     [59.724195, 29.625813],
   ];
 
   const maakondStatTables = ["", "PA119", "RV032"];
-
-  const LandBoardWMTS = () => {
-    const context = useLeafletContext();
-
-    useEffect(() => {
-        //if (!mapRef.current) return;
-      const elbHallkaart = L.tileLayer(
-        "https://tiles.maaamet.ee/tm/wmts/1.0.0/hallkaart/default/{TileMatrixSet}/{z}/{y}/{x}.png",
-        { TileMatrixSet: "GMC",
-        attribution: '&copy; Maa-amet 2024' }
-      );
-
-      const container = context.layerContainer || context.map;
-      container.addLayer(elbHallkaart);
-
-      return () => {
-        container.removeLayer(elbHallkaart);
-      };
-    });
-
-    return null;
-  }
 
   const classifyValues = (data: any) => {
     const values = data.features.map(
@@ -79,6 +60,7 @@ const Map = () => {
 
   const getStyle = (feature: any) => {
     const value = feature.properties.value;
+    console.log(feature.properties.Maakond, value);
     const fillColor = getColor(value);
     return {
       fillColor,
@@ -104,29 +86,41 @@ const Map = () => {
     return "#fff";
   };
 
-  // TODO formi resettimien on lappes praegu
   const onSubmit = async (data: any) => {
+    setSubmitClicked(true);
+    setRenderedGeometries(false);
+    const allowedKeys = new Set([
+      ...statisticalSetup.map(({ code }) => code),
+      "spatialRegion",
+      "countyTables",
+    ]);
     const postForm = new FormData();
 
-    const formKeys = Object.keys(data);
-
-    // Iterating unknown variables to list
-    formKeys.forEach((element) => {
-      postForm.append(element, data[element]);
+    Object.entries(data).forEach(([key, value]) => {
+      if (allowedKeys.has(key)) {
+        postForm.append(key, value);
+      }
     });
 
     postForm.append("Maakond", countyCodeValues);
 
-    const response = await fetch("http://localhost:5000/join", {
-      method: "POST",
-      body: postForm,
-    });
+    try {
+      const response = await fetch("http://localhost:5000/join", {
+        method: "POST",
+        body: postForm,
+      });
 
-    if (response.ok) {
-      const responseJson = await response.json();
-      console.log("Geometreis to render", responseJson);
-      classifyValues(responseJson);
-      setRenderedGeometries(responseJson);
+      if (response.ok) {
+        const responseJson = await response.json();
+        classifyValues(responseJson);
+        setRenderedGeometries(responseJson);
+        setSubmitClicked(false);
+      } else {
+        console.error("Server error!");
+        setSubmitClicked(false);
+      }
+    } catch (err) {
+      console.error("Server error!");
     }
   };
 
@@ -158,7 +152,7 @@ const Map = () => {
 
   return (
     <>
-      <div className="flex flex-1 flex-col p-24">
+      <div className="flex flex-1 flex-col px-24">
         <div>
           <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-white">
             OGC API - Joins
@@ -166,7 +160,7 @@ const Map = () => {
         </div>
         <div className="mt-10">
           <form
-            className="flex flex-col gap-7 pb-5 px-2"
+            className="flex flex-col gap-4 pb-5 px-2"
             onSubmit={handleSubmit(onSubmit)}
           >
             <div>
@@ -226,7 +220,7 @@ const Map = () => {
                       {variable.text}
                     </label>
                     <select
-                      {...register(variable.code, { required: true })}
+                      {...register(variable.code, { required: false })}
                       className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
                     >
                       {variable.values.map((element: string, idx: number) => (
@@ -241,12 +235,16 @@ const Map = () => {
             )}
 
             <div>
-              <button
-                type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                Genereeri kaart
-              </button>
+              {submitClicked === false ? (
+                <button
+                  type="submit"
+                  className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                >
+                  Genereeri kaart
+                </button>
+              ) : (
+                <Loader />
+              )}
             </div>
           </form>
         </div>
@@ -266,11 +264,11 @@ const Map = () => {
         minZoom={8}
         maxZoom={12}
       >
-        <LandBoardWMTS />
-        {/* <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        /> */}
+        <TileLayer
+          attribution="&copy; Maa-amet 2024"
+          url="https://tiles.maaamet.ee/tm/wmts/1.0.0/hallkaart/default/{TileMatrixSet}/{z}/{y}/{x}.png"
+          TileMatrixSet="GMC"
+        />
 
         {renderedGeometries !== false && (
           <>

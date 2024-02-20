@@ -1,12 +1,8 @@
-import StatisticalDataForm from "@/app/components/form";
-
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useRegionNames } from "@/app/hooks/useGeographicalNames";
 
 export default async function Home() {
-  const formData = {
-    spatialRegion: "",
-  };
+  const [countyNames, ovNames] = await useRegionNames();
 
   const DynamicMap = dynamic(() => import("./components/Map"), {
     ssr: false,
@@ -15,7 +11,7 @@ export default async function Home() {
   return (
     <main className="flex p-24">
       {/* <StatisticalDataForm   /> */}
-      <DynamicMap />
+      <DynamicMap countySSR={countyNames} ovSSR={ovNames} />
     </main>
   );
 }

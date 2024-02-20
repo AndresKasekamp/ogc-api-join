@@ -22,14 +22,15 @@ interface MainStatVariables {
   values: Array<string>;
 }
 
-interface FirstStatTables {
-  id: string;
-  type: number;
-  text: string;
+interface MapProps {
+  countySSR: Array<string>;
+  ovSSR: Array<string>;
 }
 
+// TODO countytables -> tableName
 // TODO päringu ebaõnnestumine kommunikeerida
-const Map = () => {
+
+const Map = ({ countySSR, ovSSR }: MapProps) => {
   const {
     register,
     handleSubmit,
@@ -38,11 +39,12 @@ const Map = () => {
     formState: { errors },
   } = useForm();
 
-
   const [statisticalSetup, setStatisticalSetup] = useState<MainStatVariables[]>(
     []
   );
-  const [regionCodeValues, setRegionCodeValues] = useState<string>("");
+
+  const [regionCodeValues, setRegionCodeValues] =
+    useState<MainStatVariables | null>(null);
   const spatialRegionValue = watch("spatialRegion", "");
   const [renderedGeometries, setRenderedGeometries] = useState<any>(false);
   const [breaks, setBreaks] = useState<number[]>([]);
@@ -56,6 +58,60 @@ const Map = () => {
   ];
 
   const maakondStatTables = ["", "PA119", "RV032", "RV0282U"];
+  const omavalitsusStatTables = ["", "RV0282U"];
+
+  const tablesBasedOnRegion = () => {
+    switch (spatialRegionValue) {
+      case "Maakond":
+        return (
+          <div>
+            <label
+              htmlFor="countyTables"
+              className="block mb-2 text-l leading-6 text-white"
+            >
+              Maakonna tabelid
+            </label>
+            <select
+              {...register("countyTables", { required: true })}
+              onChange={(e) => {
+                getStatisticalData(e.target.value);
+              }}
+              className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
+            >
+              {maakondStatTables.map((tbl) => (
+                <option key={tbl} value={tbl}>
+                  {tbl}
+                </option>
+              ))}
+            </select>
+          </div>
+        );
+      case "Omavalitsus":
+        return (
+          <div>
+            <label
+              htmlFor="countyTables"
+              className="block mb-2 text-l leading-6 text-white"
+            >
+              Omavalitsuse tabelid
+            </label>
+            <select
+              {...register("countyTables", { required: true })}
+              onChange={(e) => {
+                getStatisticalData(e.target.value);
+              }}
+              className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
+            >
+              {omavalitsusStatTables.map((tbl) => (
+                <option key={tbl} value={tbl}>
+                  {tbl}
+                </option>
+              ))}
+            </select>
+          </div>
+        );
+    }
+  };
 
   const classifyValues = (data: any) => {
     const values = data.features.map(
@@ -69,7 +125,6 @@ const Map = () => {
 
   const getStyle = (feature: any) => {
     const value = feature.properties.value;
-    console.log(feature.properties.Maakond, value);
     const fillColor = getColor(value);
     return {
       fillColor,
@@ -112,7 +167,13 @@ const Map = () => {
       }
     });
 
-    postForm.append("Maakond", regionCodeValues);
+    // postForm.append("Maakond", regionCodeValues);
+    if (regionCodeValues !== null) {
+      postForm.append(
+        regionCodeValues.code,
+        regionCodeValues.values.toString()
+      );
+    }
 
     try {
       const response = await fetch("http://localhost:5000/join", {
@@ -131,7 +192,8 @@ const Map = () => {
         setSubmitClicked(false);
       }
     } catch (err) {
-      console.error("Server error!");
+      console.error("Server error!", err);
+      setSubmitClicked(false);
     }
   };
 
@@ -146,34 +208,45 @@ const Map = () => {
       const responseJson = await response.json();
       console.log(responseJson.variables);
       const filteredResponse = responseJson.variables.filter(
-        (obj: MainStatVariables) => obj.code !== "Maakond"
+        (obj: MainStatVariables) =>
+          obj.code !== "Maakond" && obj.code !== "Elukoht"
       );
 
-      const countyFilter = responseJson.variables.find(
-        (obj: MainStatVariables) => obj.code === "Maakond"
+      const regionFilter = responseJson.variables.find(
+        (obj: MainStatVariables) =>
+          obj.code === "Maakond" || obj.code === "Elukoht"
       );
+
+      const newRegionValues = [];
+      if (spatialRegionValue === "Maakond") {
+        for (let i = 0; i < regionFilter.valueTexts.length; i++) {
+          if (countySSR.includes(regionFilter.valueTexts[i].toLowerCase())) {
+            newRegionValues.push(regionFilter.values[i]);
+          }
+        }
+      } else if (spatialRegionValue === "Omavalitsus") {
+        console.log("OVSSR", ovSSR);
+        for (let i = 0; i < regionFilter.valueTexts.length; i++) {
+          if (
+            ovSSR.includes(
+              regionFilter.valueTexts[i].toLowerCase().replace(/^\.+/, "")
+            )
+          ) {
+            newRegionValues.push(regionFilter.values[i]);
+          }
+        }
+      }
+
+      regionFilter.values = newRegionValues;
+      console.log("New region values", regionFilter);
 
       setStatisticalSetup(filteredResponse);
-      setRegionCodeValues(countyFilter.values.toString());
+      setRegionCodeValues(regionFilter);
     } else {
       setStatisticalSetup([]);
-      setRegionCodeValues("");
+      setRegionCodeValues(null);
     }
   };
-
-//   const getStatTables1 = async (data: string) => {
-//     if (data !== "") {
-//       const response = await fetch(`${process.env.NEXT_PUBLIC_STAT_URL}`, {
-//         method: "GET",
-//       });
-
-//       const responseJson = await response.json();
-//       setFirstStatTables(responseJson);
-//       console.log("First tables", responseJson);
-//     } else {
-//       console.log("Something else");
-//     }
-//   };
 
   return (
     <>
@@ -198,9 +271,7 @@ const Map = () => {
               <select
                 {...register("spatialRegion", { required: true })}
                 defaultValue=""
-                // onChange={(e) => {
-                //   getStatTables1(e.target.value);
-                // }}
+                // onChange={(e) => {console.log(e.target.value)}}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
               >
                 <option key="" value=""></option>
@@ -213,60 +284,9 @@ const Map = () => {
               </select>
             </div>
 
-            {/* {firstStatTables.length > 0 && (
-              <>
-                <div>
-                  <label
-                    htmlFor="firstStatTable"
-                    className="block mb-2 text-l leading-6 text-white"
-                  >
-                    Esimene kategooria
-                  </label>
-                  <select
-                    {...register("firstStatTable", { required: true })}
-                    defaultValue=""
-                    // onChange={(e) => {
-                    //   getStatTables1(e.target.value);
-                    // }}
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
-                  >
-                    <option key="" value=""></option>
-                    {firstStatTables.map((tbl) => (
-                      <option key={tbl.id} value={tbl.id}>
-                        {tbl.text}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            {tablesBasedOnRegion()}
 
-              </>
-            )} */}
-
-            {spatialRegionValue === "Maakond" && (
-              <div>
-                <label
-                  htmlFor="countyTables"
-                  className="block mb-2 text-l leading-6 text-white"
-                >
-                  Maakonna tabelid
-                </label>
-                <select
-                  {...register("countyTables", { required: true })}
-                  onChange={(e) => {
-                    getStatisticalData(e.target.value);
-                  }}
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
-                >
-                  {maakondStatTables.map((tbl) => (
-                    <option key={tbl} value={tbl}>
-                      {tbl}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {statisticalSetup.length > 0 && (
+            {statisticalSetup.length > 0 && spatialRegionValue !== "" && (
               <>
                 {statisticalSetup.map((variable) => (
                   <div key={variable.code}>

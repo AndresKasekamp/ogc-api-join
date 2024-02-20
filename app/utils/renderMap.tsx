@@ -8,7 +8,8 @@ export const onEachFeature = (feature: any, layer: any) => {
     // console.log(feature.properties.Maakond, feature.geometry)
     // const centerCoordinates = calculateMultiPolygonCenter(feature.geometry);
     // console.log("Center coordinates", centerCoordinates)
-    layer.bindPopup(feature.properties.value.toString());
+    // layer.bindPopup(feature.properties.name_geographicalname_spelling_spellingofname_text, feature.properties.value.toString());
+    layer.bindPopup(`${feature.properties.name_geographicalname_spelling_spellingofname_text}<br />Väärtus: ${feature.properties.value.toString()}`);
     // layer
     //   .bindTooltip(feature.properties.value.toString(), centerCoordinates, {
     //     permanent: true,

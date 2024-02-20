@@ -27,7 +27,7 @@ interface MapProps {
   ovSSR: Array<string>;
 }
 
-// TODO countytables -> tableName
+// FIXME bug on sama tabeli päring regiooniga, state ei muutu ja koodid jäävad samaks, aasta ka miskipärast
 // TODO päringu ebaõnnestumine kommunikeerida
 
 const Map = ({ countySSR, ovSSR }: MapProps) => {
@@ -57,8 +57,9 @@ const Map = ({ countySSR, ovSSR }: MapProps) => {
     [59.724195, 29.625813],
   ];
 
-  const maakondStatTables = ["", "PA119", "RV032", "RV0282U"];
-  const omavalitsusStatTables = ["", "RV0282U"];
+  // TODO tabeldi siduda nimedega
+  const maakondStatTables = ["", "PA119", "RV032", "RV0282U", "PMS042"];
+  const omavalitsusStatTables = ["", "RV0282U", "PMS042"];
 
   const tablesBasedOnRegion = () => {
     switch (spatialRegionValue) {
@@ -66,13 +67,13 @@ const Map = ({ countySSR, ovSSR }: MapProps) => {
         return (
           <div>
             <label
-              htmlFor="countyTables"
+              htmlFor="regionTable"
               className="block mb-2 text-l leading-6 text-white"
             >
               Maakonna tabelid
             </label>
             <select
-              {...register("countyTables", { required: true })}
+              {...register("regionTable", { required: true })}
               onChange={(e) => {
                 getStatisticalData(e.target.value);
               }}
@@ -90,13 +91,13 @@ const Map = ({ countySSR, ovSSR }: MapProps) => {
         return (
           <div>
             <label
-              htmlFor="countyTables"
+              htmlFor="regionTable"
               className="block mb-2 text-l leading-6 text-white"
             >
               Omavalitsuse tabelid
             </label>
             <select
-              {...register("countyTables", { required: true })}
+              {...register("regionTable", { required: true })}
               onChange={(e) => {
                 getStatisticalData(e.target.value);
               }}
@@ -156,7 +157,7 @@ const Map = ({ countySSR, ovSSR }: MapProps) => {
     const allowedKeys = new Set([
       ...statisticalSetup.map(({ code }) => code),
       "spatialRegion",
-      "countyTables",
+      "regionTable",
     ]);
     const postForm = new FormData();
 
@@ -209,12 +210,12 @@ const Map = ({ countySSR, ovSSR }: MapProps) => {
       console.log(responseJson.variables);
       const filteredResponse = responseJson.variables.filter(
         (obj: MainStatVariables) =>
-          obj.code !== "Maakond" && obj.code !== "Elukoht"
+          obj.code !== "Maakond" && obj.code !== "Elukoht" && obj.code !== "Haldusüksus"
       );
 
       const regionFilter = responseJson.variables.find(
         (obj: MainStatVariables) =>
-          obj.code === "Maakond" || obj.code === "Elukoht"
+          obj.code === "Maakond" || obj.code === "Elukoht" || obj.code === "Haldusüksus"
       );
 
       const newRegionValues = [];
@@ -238,7 +239,6 @@ const Map = ({ countySSR, ovSSR }: MapProps) => {
       }
 
       regionFilter.values = newRegionValues;
-      console.log("New region values", regionFilter);
 
       setStatisticalSetup(filteredResponse);
       setRegionCodeValues(regionFilter);

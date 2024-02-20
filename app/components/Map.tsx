@@ -22,6 +22,12 @@ interface MainStatVariables {
   values: Array<string>;
 }
 
+interface FirstStatTables {
+  id: string;
+  type: number;
+  text: string;
+}
+
 // TODO päringu ebaõnnestumine kommunikeerida
 const Map = () => {
   const {
@@ -32,22 +38,24 @@ const Map = () => {
     formState: { errors },
   } = useForm();
 
+
   const [statisticalSetup, setStatisticalSetup] = useState<MainStatVariables[]>(
     []
   );
-  const [countyCodeValues, setCountyCodeValues] = useState<string>("");
+  const [regionCodeValues, setRegionCodeValues] = useState<string>("");
   const spatialRegionValue = watch("spatialRegion", "");
   const [renderedGeometries, setRenderedGeometries] = useState<any>(false);
   const [breaks, setBreaks] = useState<number[]>([]);
 
   const [submitClicked, setSubmitClicked] = useState(false);
 
+  // TODO see migreeruda
   const bounds: LatLngBoundsExpression = [
     [57.538569, 20.909516],
     [59.724195, 29.625813],
   ];
 
-  const maakondStatTables = ["", "PA119", "RV032"];
+  const maakondStatTables = ["", "PA119", "RV032", "RV0282U"];
 
   const classifyValues = (data: any) => {
     const values = data.features.map(
@@ -104,7 +112,7 @@ const Map = () => {
       }
     });
 
-    postForm.append("Maakond", countyCodeValues);
+    postForm.append("Maakond", regionCodeValues);
 
     try {
       const response = await fetch("http://localhost:5000/join", {
@@ -130,7 +138,7 @@ const Map = () => {
   const getStatisticalData = async (data: string) => {
     if (data !== "") {
       const response = await fetch(
-        `https://andmed.stat.ee/api/v1/et/stat/${data}`,
+        `${process.env.NEXT_PUBLIC_STAT_URL}/${data}`,
         {
           method: "GET",
         }
@@ -146,12 +154,26 @@ const Map = () => {
       );
 
       setStatisticalSetup(filteredResponse);
-      setCountyCodeValues(countyFilter.values.toString());
+      setRegionCodeValues(countyFilter.values.toString());
     } else {
       setStatisticalSetup([]);
-      setCountyCodeValues("");
+      setRegionCodeValues("");
     }
   };
+
+//   const getStatTables1 = async (data: string) => {
+//     if (data !== "") {
+//       const response = await fetch(`${process.env.NEXT_PUBLIC_STAT_URL}`, {
+//         method: "GET",
+//       });
+
+//       const responseJson = await response.json();
+//       setFirstStatTables(responseJson);
+//       console.log("First tables", responseJson);
+//     } else {
+//       console.log("Something else");
+//     }
+//   };
 
   return (
     <>
@@ -176,6 +198,9 @@ const Map = () => {
               <select
                 {...register("spatialRegion", { required: true })}
                 defaultValue=""
+                // onChange={(e) => {
+                //   getStatTables1(e.target.value);
+                // }}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
               >
                 <option key="" value=""></option>
@@ -187,6 +212,35 @@ const Map = () => {
                 </option>
               </select>
             </div>
+
+            {/* {firstStatTables.length > 0 && (
+              <>
+                <div>
+                  <label
+                    htmlFor="firstStatTable"
+                    className="block mb-2 text-l leading-6 text-white"
+                  >
+                    Esimene kategooria
+                  </label>
+                  <select
+                    {...register("firstStatTable", { required: true })}
+                    defaultValue=""
+                    // onChange={(e) => {
+                    //   getStatTables1(e.target.value);
+                    // }}
+                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
+                  >
+                    <option key="" value=""></option>
+                    {firstStatTables.map((tbl) => (
+                      <option key={tbl.id} value={tbl.id}>
+                        {tbl.text}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+              </>
+            )} */}
 
             {spatialRegionValue === "Maakond" && (
               <div>

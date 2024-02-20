@@ -288,6 +288,7 @@ const Map = ({ countySSR, ovSSR }: MapProps) => {
 
             {statisticalSetup.length > 0 && spatialRegionValue !== "" && (
               <>
+                <hr />
                 {statisticalSetup.map((variable) => (
                   <div key={variable.code}>
                     <label

@@ -17,7 +17,6 @@ import {
 
 import { useBreaks, BreaksContextProps } from "../hooks/useBreaksContext";
 
-
 interface StylingProperties {
   fillColor: string;
   opacity: number;
@@ -62,39 +61,37 @@ const Map = () => {
   };
 
   return (
-    <>
-      <MapContainer
-        style={{
-          height: "75vh",
-          width: "65vw",
-        }}
-        center={[58.86, 25.56]}
-        bounds={bounds}
-        maxBounds={bounds}
-        maxBoundsViscosity={0.9}
-        zoom={8}
-        scrollWheelZoom={true}
-        minZoom={8}
-        maxZoom={12}
-      >
-        <TileLayer
-          attribution="&copy; Maa-amet 2024"
-          url="https://tiles.maaamet.ee/tm/wmts/1.0.0/hallkaart/default/{TileMatrixSet}/{z}/{y}/{x}.png"
-          // @ts-ignore
-          TileMatrixSet="GMC"
-        />
+    <MapContainer
+      style={{
+        height: "75vh",
+        width: "65vw",
+      }}
+      center={[58.86, 25.56]}
+      bounds={bounds}
+      maxBounds={bounds}
+      maxBoundsViscosity={0.9}
+      zoom={8}
+      scrollWheelZoom={true}
+      minZoom={8}
+      maxZoom={12}
+    >
+      <TileLayer
+        attribution="&copy; Maa-amet 2024"
+        url="https://tiles.maaamet.ee/tm/wmts/1.0.0/hallkaart/default/{TileMatrixSet}/{z}/{y}/{x}.png"
+        // @ts-ignore
+        TileMatrixSet="GMC"
+      />
 
-        {renderedGeometries !== false && (
-          <>
-            <GeoJSON
-              data={renderedGeometries}
-              onEachFeature={onEachFeature}
-              style={getStyle}
-            />
-          </>
-        )}
-      </MapContainer>
-    </>
+      {renderedGeometries !== false && (
+        <>
+          <GeoJSON
+            data={renderedGeometries}
+            onEachFeature={onEachFeature}
+            style={getStyle}
+          />
+        </>
+      )}
+    </MapContainer>
   );
 };
 

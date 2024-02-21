@@ -10,10 +10,7 @@ import {
   GeometriesContextProps,
 } from "../hooks/useGeometriesContext";
 
-import {
-  useBreaks,
-  BreaksContextProps,
-} from "../hooks/useBreaksContext";
+import { useBreaks, BreaksContextProps } from "../hooks/useBreaksContext";
 
 interface MainStatVariables {
   code: string;
@@ -48,13 +45,9 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
     useState<MainStatVariables | null>(null);
   const spatialRegionValue = watch("spatialRegion", "");
 
-  const { setRenderedGeometries }: GeometriesContextProps =
-    useGeometries();
+  const { setRenderedGeometries }: GeometriesContextProps = useGeometries();
 
-  //const [breaks, setBreaks] = useState<number[]>([]);
-
-  const { setBreaks }: BreaksContextProps =
-  useBreaks();
+  const { setBreaks }: BreaksContextProps = useBreaks();
 
   const [submitClicked, setSubmitClicked] = useState(false);
 
@@ -174,6 +167,8 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
   };
 
   const getStatisticalData = async (data: string) => {
+    setStatisticalSetup([]);
+    setRegionCodeValues(null);
     if (data !== "") {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STAT_URL}/${data}`,
@@ -197,6 +192,7 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
           obj.code === "Haldusüksus"
       );
 
+
       const newRegionValues = [];
       if (spatialRegionValue === "Maakond") {
         for (let i = 0; i < regionFilter.valueTexts.length; i++) {
@@ -205,7 +201,6 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
           }
         }
       } else if (spatialRegionValue === "Omavalitsus") {
-        console.log("OVSSR", ovSSR);
         for (let i = 0; i < regionFilter.valueTexts.length; i++) {
           if (
             ovSSR.includes(
@@ -221,92 +216,87 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
 
       setStatisticalSetup(filteredResponse);
       setRegionCodeValues(regionFilter);
-    } else {
-      setStatisticalSetup([]);
-      setRegionCodeValues(null);
     }
   };
 
   return (
-    <>
-      <div className="flex flex-1 flex-col px-24">
-        <div>
-          <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-white">
-            OGC API - Joins
-          </h2>
-        </div>
-        <div className="mt-10">
-          <form
-            className="flex flex-col gap-4 pb-5 px-2"
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            <div>
-              <label
-                htmlFor="spatialRegion"
-                className="block mb-2 text-l leading-6 text-white"
-              >
-                Regioon
-              </label>
-              <select
-                {...register("spatialRegion", { required: true })}
-                defaultValue=""
-                // onChange={(e) => {console.log(e.target.value)}}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
-              >
-                <option key="" value=""></option>
-                <option key="Maakond" value="Maakond">
-                  Maakond
-                </option>
-                <option key="Omavalitsus" value="Omavalitsus">
-                  Omavalitsus
-                </option>
-              </select>
-            </div>
-
-            {tablesBasedOnRegion()}
-
-            {statisticalSetup.length > 0 && spatialRegionValue !== "" && (
-              <>
-                <hr />
-                {statisticalSetup.map((variable) => (
-                  <div key={variable.code}>
-                    <label
-                      htmlFor={variable.code}
-                      className="block mb-2 text-l leading-6 text-white"
-                    >
-                      {variable.text}
-                    </label>
-                    <select
-                      {...register(variable.code, { required: false })}
-                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
-                    >
-                      {variable.values.map((element: string, idx: number) => (
-                        <option key={element} value={element}>
-                          {variable.valueTexts[idx]}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                ))}
-              </>
-            )}
-
-            <div>
-              {submitClicked === false ? (
-                <button
-                  type="submit"
-                  className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                >
-                  Genereeri kaart
-                </button>
-              ) : (
-                <Loader />
-              )}
-            </div>
-          </form>
-        </div>
+    <div className="flex flex-1 flex-col px-24">
+      <div>
+        <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-white">
+          OGC API - Joins
+        </h2>
       </div>
-    </>
+      <div className="mt-10">
+        <form
+          className="flex flex-col gap-4 pb-5 px-2"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <div>
+            <label
+              htmlFor="spatialRegion"
+              className="block mb-2 text-l leading-6 text-white"
+            >
+              Regioon
+            </label>
+            <select
+              {...register("spatialRegion", { required: true })}
+              defaultValue=""
+              // onChange={(e) => {console.log(e.target.value)}}
+              className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
+            >
+              <option key="" value=""></option>
+              <option key="Maakond" value="Maakond">
+                Maakond
+              </option>
+              <option key="Omavalitsus" value="Omavalitsus">
+                Omavalitsus
+              </option>
+            </select>
+          </div>
+
+          {tablesBasedOnRegion()}
+
+          {statisticalSetup.length > 0 && spatialRegionValue !== "" && (
+            <>
+              <hr />
+              {statisticalSetup.map((variable) => (
+                <div key={variable.code}>
+                  <label
+                    htmlFor={variable.code}
+                    className="block mb-2 text-l leading-6 text-white"
+                  >
+                    {variable.text}
+                  </label>
+                  <select
+                    {...register(variable.code, { required: false })}
+                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
+                  >
+                    {variable.values.map((element: string, idx: number) => (
+                      <option key={element} value={element}>
+                        {variable.valueTexts[idx]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+            </>
+          )}
+
+          <div>
+            {submitClicked === false ? (
+              <button
+                type="submit"
+                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                Genereeri kaart
+              </button>
+            ) : (
+              <Loader />
+            )}
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 

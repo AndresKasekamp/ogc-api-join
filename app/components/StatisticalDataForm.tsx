@@ -6,15 +6,19 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Toaster, toast } from "sonner";
 import Loader from "./Loader";
-import {
-  useGeometries
-} from "../hooks/useGeometriesContext";
+import { useGeometries } from "../hooks/useGeometriesContext";
 
-import { MainStatVariables, MapProps, GeometriesContextProps, BreaksContextProps } from "../utils/interfaces";
+
+import {
+  MainStatVariables,
+  MapProps,
+  GeometriesContextProps,
+  BreaksContextProps,
+} from "../utils/interfaces";
 
 import { useBreaks } from "../hooks/useBreaksContext";
 import { maakondStatTables, omavalitsusStatTables } from "../utils/statTables";
-
+import Options from "../utils/options"
 // FIXME bug on sama tabeli päring regiooniga, state ei muutu ja koodid jäävad samaks, aasta ka miskipärast
 
 const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
@@ -234,6 +238,7 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
           OGC API - Joins
         </h2>
       </div>
+      <Options />
       <div className="mt-10">
         <form
           className="flex flex-col gap-4 pb-5 px-2"

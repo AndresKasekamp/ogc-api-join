@@ -228,7 +228,7 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
   };
 
   return (
-    <div className="flex flex-1 flex-col px-24">
+    <div className="flex flex-1 flex-col px-20">
       <div>
         <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-white">
           OGC API - Joins

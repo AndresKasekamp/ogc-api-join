@@ -24,6 +24,8 @@ import { useBreaks } from "../hooks/useBreaksContext";
 const Map = () => {
   const { renderedGeometries }: GeometriesContextProps = useGeometries();
 
+  console.log("Rendered geometries", renderedGeometries)
+
   // Get the map instance using useRef:
   const mapRef = useRef(null);
 

@@ -121,7 +121,7 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
 
   const onSubmit = async (data: any) => {
     setSubmitClicked(true);
-    setRenderedGeometries(false);
+    setRenderedGeometries(null);
 
     const allowedKeys = new Set([
       ...statisticalSetup.map(({ code }) => code),

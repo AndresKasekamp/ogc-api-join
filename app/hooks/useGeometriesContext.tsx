@@ -25,7 +25,7 @@ export const useGeometries = () => {
 export const GeometriesProvider: React.FC<GeometriesProviderProps> = ({
   children,
 }) => {
-  const [renderedGeometries, setRenderedGeometries] = useState<any>(false);
+  const [renderedGeometries, setRenderedGeometries] = useState<any>(null);
 
   return (
     <GeometriesContext.Provider

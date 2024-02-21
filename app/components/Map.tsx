@@ -24,9 +24,7 @@ interface StylingProperties {
   fillOpacity: number;
 }
 
-// FIXME bug on sama tabeli päring regiooniga, state ei muutu ja koodid jäävad samaks, aasta ka miskipärast
-// TODO päringu ebaõnnestumine kommunikeerida
-// TODO kas rendered geometries deafult võiks olla null?
+
 
 const Map = () => {
   const { renderedGeometries }: GeometriesContextProps = useGeometries();
@@ -82,7 +80,7 @@ const Map = () => {
         TileMatrixSet="GMC"
       />
 
-      {renderedGeometries !== false && (
+      {renderedGeometries !== null && (
         <>
           <GeoJSON
             data={renderedGeometries}

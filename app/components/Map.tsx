@@ -1,33 +1,31 @@
 "use client";
 
-import React from "react";
+import React, {  useRef } from "react";
 
 import { onEachFeature, bounds } from "../utils/renderMap";
+
 
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 
 import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
-
 import {
-  useGeometries,
+  StylingProperties,
   GeometriesContextProps,
-} from "../hooks/useGeometriesContext";
+  BreaksContextProps,
+} from "../utils/interfaces";
+import { useGeometries } from "../hooks/useGeometriesContext";
+// import Legend from "./Legend";
+import Legend from "./Legend";
 
-import { useBreaks, BreaksContextProps } from "../hooks/useBreaksContext";
-
-interface StylingProperties {
-  fillColor: string;
-  opacity: number;
-  color: string;
-  fillOpacity: number;
-}
-
-
+import { useBreaks } from "../hooks/useBreaksContext";
 
 const Map = () => {
   const { renderedGeometries }: GeometriesContextProps = useGeometries();
+
+  // Get the map instance using useRef:
+  const mapRef = useRef(null);
 
   const { breaks }: BreaksContextProps = useBreaks();
 
@@ -46,7 +44,6 @@ const Map = () => {
     for (let i = 0; i < breaks.length - 1; i++) {
       if (value >= breaks[i] && value <= breaks[i + 1]) {
         return [
-          "#FED976",
           "#FEB24C",
           "#FD8D3C",
           "#FC4E2A",
@@ -59,37 +56,41 @@ const Map = () => {
   };
 
   return (
-    <MapContainer
-      style={{
-        height: "75vh",
-        width: "65vw",
-      }}
-      center={[58.86, 25.56]}
-      bounds={bounds}
-      maxBounds={bounds}
-      maxBoundsViscosity={0.9}
-      zoom={8}
-      scrollWheelZoom={true}
-      minZoom={8}
-      maxZoom={12}
-    >
-      <TileLayer
-        attribution="&copy; Maa-amet 2024"
-        url="https://tiles.maaamet.ee/tm/wmts/1.0.0/hallkaart/default/{TileMatrixSet}/{z}/{y}/{x}.png"
-        // @ts-ignore
-        TileMatrixSet="GMC"
-      />
+    <>
+      <MapContainer
+        style={{
+          height: "75vh",
+          width: "65vw",
+        }}
+        center={[58.86, 25.56]}
+        bounds={bounds}
+        maxBounds={bounds}
+        maxBoundsViscosity={0.9}
+        zoom={8}
+        scrollWheelZoom={true}
+        minZoom={8}
+        maxZoom={12}
+        ref={mapRef}
+      >
+        <TileLayer
+          attribution="&copy; Maa-amet 2024"
+          url="https://tiles.maaamet.ee/tm/wmts/1.0.0/hallkaart/default/{TileMatrixSet}/{z}/{y}/{x}.png"
+          // @ts-ignore
+          TileMatrixSet="GMC"
+        />
 
-      {renderedGeometries !== null && (
-        <>
-          <GeoJSON
-            data={renderedGeometries}
-            onEachFeature={onEachFeature}
-            style={getStyle}
-          />
-        </>
-      )}
-    </MapContainer>
+        {renderedGeometries !== null && (
+          <>
+            <GeoJSON
+              data={renderedGeometries}
+              onEachFeature={onEachFeature}
+              style={getStyle}
+            />
+            <Legend map={mapRef.current} breaks={breaks} getColor={getColor} />
+          </>
+        )}
+      </MapContainer>
+    </>
   );
 };
 

@@ -7,28 +7,15 @@ import { useForm } from "react-hook-form";
 import { Toaster, toast } from "sonner";
 import Loader from "./Loader";
 import {
-  useGeometries,
-  GeometriesContextProps,
+  useGeometries
 } from "../hooks/useGeometriesContext";
 
-import { useBreaks, BreaksContextProps } from "../hooks/useBreaksContext";
-import {maakondStatTables, omavalitsusStatTables} from "../utils/statTables"
+import { MainStatVariables, MapProps, GeometriesContextProps, BreaksContextProps } from "../utils/interfaces";
 
-interface MainStatVariables {
-  code: string;
-  text: number;
-  valueTexts: Array<string>;
-  values: Array<string>;
-}
-
-interface MapProps {
-  countySSR: Array<string>;
-  ovSSR: Array<string>;
-}
+import { useBreaks } from "../hooks/useBreaksContext";
+import { maakondStatTables, omavalitsusStatTables } from "../utils/statTables";
 
 // FIXME bug on sama tabeli päring regiooniga, state ei muutu ja koodid jäävad samaks, aasta ka miskipärast
-
-// TODO kas rendered geometries deafult võiks olla null?
 
 const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
   const {
@@ -52,10 +39,6 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
   const { setBreaks }: BreaksContextProps = useBreaks();
 
   const [submitClicked, setSubmitClicked] = useState(false);
-
-  // TODO tabeldi siduda nimedega
-  // const maakondStatTables = ["", "PA119", "RV032", "RV0282U", "PMS042"];
-  // const omavalitsusStatTables = ["", "RV0282U", "PMS042"];
 
   const tablesBasedOnRegion = () => {
     switch (spatialRegionValue) {
@@ -115,7 +98,7 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
       (feature: any) => feature.properties.value
     );
     const classifier = new GeoStats(values);
-    classifier.getClassJenks(5);
+    classifier.getClassJenks(4);
     console.log("Classifier", classifier); // You can adjust the number of classes as needed
     setBreaks(classifier.bounds);
   };

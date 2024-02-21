@@ -1,14 +1,9 @@
 "use client";
 import React, { createContext, useContext, ReactNode, useState } from "react";
-
-export interface GeometriesContextProps {
-  renderedGeometries: any; // Change 'any' to the specific type you're using
-  setRenderedGeometries: React.Dispatch<React.SetStateAction<any>>;
-}
-
-interface GeometriesProviderProps {
-  children: ReactNode;
-}
+import {
+  GeometriesProviderProps,
+  GeometriesContextProps,
+} from "../utils/interfaces";
 
 const GeometriesContext = createContext<GeometriesContextProps | undefined>(
   undefined

@@ -1,14 +1,7 @@
 "use client";
 import React, { createContext, useContext, ReactNode, useState } from "react";
 
-export interface BreaksContextProps {
-  breaks: any; // Change 'any' to the specific type you're using
-  setBreaks: React.Dispatch<React.SetStateAction<any>>;
-}
-
-interface BreaksProviderProps {
-  children: ReactNode;
-}
+import { BreaksProviderProps, BreaksContextProps } from "../utils/interfaces";
 
 const BreaksContext = createContext<BreaksContextProps | undefined>(undefined);
 

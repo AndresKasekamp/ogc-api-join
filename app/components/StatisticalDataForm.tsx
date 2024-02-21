@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { Toaster, toast } from "sonner";
 import Loader from "./Loader";
 import { useGeometries } from "../hooks/useGeometriesContext";
-
+import DownloadLink from "./Download";
 
 import {
   MainStatVariables,
@@ -18,7 +18,7 @@ import {
 
 import { useBreaks } from "../hooks/useBreaksContext";
 import { maakondStatTables, omavalitsusStatTables } from "../utils/statTables";
-import Options from "../utils/options"
+import Options from "../utils/options";
 // FIXME bug on sama tabeli päring regiooniga, state ei muutu ja koodid jäävad samaks, aasta ka miskipärast
 
 const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
@@ -34,11 +34,14 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
     []
   );
 
+  const fileName = "your-geojson-data.geojson";
+
   const [regionCodeValues, setRegionCodeValues] =
     useState<MainStatVariables | null>(null);
   const spatialRegionValue = watch("spatialRegion", "");
 
-  const { setRenderedGeometries }: GeometriesContextProps = useGeometries();
+  const { renderedGeometries, setRenderedGeometries }: GeometriesContextProps =
+    useGeometries();
 
   const { setBreaks }: BreaksContextProps = useBreaks();
 
@@ -295,6 +298,8 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
             </>
           )}
 
+
+
           <div>
             {submitClicked === false ? (
               <button
@@ -308,6 +313,13 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
             )}
           </div>
         </form>
+        
+        {renderedGeometries !== null && (
+            <DownloadLink
+              geojsonData={renderedGeometries}
+              fileName={fileName}
+            />
+          )}
       </div>
       <Toaster />
     </div>

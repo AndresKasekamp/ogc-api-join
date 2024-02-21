@@ -2,19 +2,18 @@
 
 // @ts-ignore
 import GeoStats from "geostats";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { onEachFeature } from "../utils/renderMap";
-import L from "leaflet";
-import { useLeafletContext } from "@react-leaflet/core";
-import "leaflet/dist/leaflet.css";
-import "leaflet-defaulticon-compatibility";
-import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
-
-import { MapContainer, TileLayer, Marker, Popup, GeoJSON } from "react-leaflet";
-import { LatLngBoundsExpression, LatLngExpression } from "leaflet";
 import Loader from "./Loader";
-import { useGeometries, GeometriesContextProps } from "../hooks/useGeometriesContext";
+import {
+  useGeometries,
+  GeometriesContextProps,
+} from "../hooks/useGeometriesContext";
+
+import {
+  useBreaks,
+  BreaksContextProps,
+} from "../hooks/useBreaksContext";
 
 interface MainStatVariables {
   code: string;
@@ -32,7 +31,7 @@ interface MapProps {
 // TODO päringu ebaõnnestumine kommunikeerida
 // TODO kas rendered geometries deafult võiks olla null?
 
-const Map = ({ countySSR, ovSSR }: MapProps) => {
+const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
   const {
     register,
     handleSubmit,
@@ -49,18 +48,15 @@ const Map = ({ countySSR, ovSSR }: MapProps) => {
     useState<MainStatVariables | null>(null);
   const spatialRegionValue = watch("spatialRegion", "");
 
-  const { renderedGeometries, setRenderedGeometries }: GeometriesContextProps = useGeometries();
+  const { setRenderedGeometries }: GeometriesContextProps =
+    useGeometries();
 
+  //const [breaks, setBreaks] = useState<number[]>([]);
 
-  const [breaks, setBreaks] = useState<number[]>([]);
+  const { setBreaks }: BreaksContextProps =
+  useBreaks();
 
   const [submitClicked, setSubmitClicked] = useState(false);
-
-  // TODO see migreeruda
-  const bounds: LatLngBoundsExpression = [
-    [57.538569, 20.909516],
-    [59.724195, 29.625813],
-  ];
 
   // TODO tabeldi siduda nimedega
   const maakondStatTables = ["", "PA119", "RV032", "RV0282U", "PMS042"];
@@ -127,33 +123,6 @@ const Map = ({ countySSR, ovSSR }: MapProps) => {
     classifier.getClassJenks(5);
     console.log("Classifier", classifier); // You can adjust the number of classes as needed
     setBreaks(classifier.bounds);
-  };
-
-  const getStyle = (feature: any) => {
-    const value = feature.properties.value;
-    const fillColor = getColor(value);
-    return {
-      fillColor,
-      opacity: 1,
-      color: "white",
-      fillOpacity: 0.7,
-    };
-  };
-
-  const getColor = (value: any) => {
-    for (let i = 0; i < breaks.length - 1; i++) {
-      if (value >= breaks[i] && value <= breaks[i + 1]) {
-        return [
-          "#FED976",
-          "#FEB24C",
-          "#FD8D3C",
-          "#FC4E2A",
-          "#E31A1C",
-          "#BD0026",
-        ][i];
-      }
-    }
-    return "#fff";
   };
 
   const onSubmit = async (data: any) => {
@@ -337,40 +306,8 @@ const Map = ({ countySSR, ovSSR }: MapProps) => {
           </form>
         </div>
       </div>
-
-      <MapContainer
-        style={{
-          height: "75vh",
-          width: "65vw",
-        }}
-        center={[58.86, 25.56]}
-        bounds={bounds}
-        maxBounds={bounds}
-        maxBoundsViscosity={0.9}
-        zoom={8}
-        scrollWheelZoom={true}
-        minZoom={8}
-        maxZoom={12}
-      >
-        <TileLayer
-          attribution="&copy; Maa-amet 2024"
-          url="https://tiles.maaamet.ee/tm/wmts/1.0.0/hallkaart/default/{TileMatrixSet}/{z}/{y}/{x}.png"
-          // @ts-ignore
-          TileMatrixSet="GMC"
-        />
-
-        {renderedGeometries !== false && (
-          <>
-            <GeoJSON
-              data={renderedGeometries}
-              onEachFeature={onEachFeature}
-              style={getStyle}
-            />
-          </>
-        )}
-      </MapContainer>
     </>
   );
 };
 
-export default Map;
+export default StatisticalDataForm;

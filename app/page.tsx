@@ -1,6 +1,9 @@
 import dynamic from "next/dynamic";
 import { useRegionNames } from "@/app/hooks/useGeographicalNames";
 import { GeometriesProvider } from "./hooks/useGeometriesContext";
+import { BreaksProvider } from "./hooks/useBreaksContext";
+import StatisticalDataForm from "./components/StatisticalDataForm";
+
 export default async function Home() {
   const [countyNames, ovNames] = await useRegionNames();
 
@@ -11,7 +14,10 @@ export default async function Home() {
   return (
     <main className="flex p-24">
       <GeometriesProvider>
-        <DynamicMap countySSR={countyNames} ovSSR={ovNames} />
+        <BreaksProvider>
+          <StatisticalDataForm countySSR={countyNames} ovSSR={ovNames} />
+          <DynamicMap />
+        </BreaksProvider>
       </GeometriesProvider>
     </main>
   );

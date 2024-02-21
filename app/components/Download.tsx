@@ -1,5 +1,6 @@
 import React from "react";
 
+// @ts-ignore
 const DownloadLink = ({ geojsonData, fileName }) => {
   const downloadJson = () => {
     const data = JSON.stringify(geojsonData, null, 2);

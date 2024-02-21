@@ -17,7 +17,7 @@ import {
 } from "../utils/interfaces";
 
 import { useBreaks } from "../hooks/useBreaksContext";
-import { maakondStatTables, omavalitsusStatTables } from "../utils/statTables";
+import { omavalitsusStatTables, maakondStatTables } from "../utils/statTables";
 import Options from "../utils/options";
 // FIXME bug on sama tabeli päring regiooniga, state ei muutu ja koodid jäävad samaks, aasta ka miskipärast
 
@@ -66,8 +66,8 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
             >
               {maakondStatTables.map((tbl) => (
-                <option key={tbl} value={tbl}>
-                  {tbl}
+                <option key={tbl.id} value={tbl.id}>
+                  {tbl.name}
                 </option>
               ))}
             </select>
@@ -90,8 +90,8 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
             >
               {omavalitsusStatTables.map((tbl) => (
-                <option key={tbl} value={tbl}>
-                  {tbl}
+                <option key={tbl.id} value={tbl.id}>
+                  {tbl.name}
                 </option>
               ))}
             </select>

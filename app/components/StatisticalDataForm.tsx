@@ -4,6 +4,7 @@
 import GeoStats from "geostats";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { Toaster, toast } from "sonner";
 import Loader from "./Loader";
 import {
   useGeometries,
@@ -25,7 +26,7 @@ interface MapProps {
 }
 
 // FIXME bug on sama tabeli päring regiooniga, state ei muutu ja koodid jäävad samaks, aasta ka miskipärast
-// TODO päringu ebaõnnestumine kommunikeerida
+
 // TODO kas rendered geometries deafult võiks olla null?
 
 const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
@@ -157,11 +158,19 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
         setRenderedGeometries(responseJson);
         setSubmitClicked(false);
       } else {
-        console.error("Server error!");
+        console.error("Error here");
+        toast.error(`Something went wrong`, {
+          position: "top-center",
+          duration: 5000,
+        });
         setSubmitClicked(false);
       }
     } catch (err) {
-      console.error("Server error!", err);
+      console.error("Error", err);
+      toast.error(`Something went wrong`, {
+        position: "top-center",
+        duration: 5000,
+      });
       setSubmitClicked(false);
     }
   };
@@ -170,52 +179,67 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
     setStatisticalSetup([]);
     setRegionCodeValues(null);
     if (data !== "") {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STAT_URL}/${data}`,
-        {
-          method: "GET",
-        }
-      );
-      const responseJson = await response.json();
-      console.log(responseJson.variables);
-      const filteredResponse = responseJson.variables.filter(
-        (obj: MainStatVariables) =>
-          obj.code !== "Maakond" &&
-          obj.code !== "Elukoht" &&
-          obj.code !== "Haldusüksus"
-      );
-
-      const regionFilter = responseJson.variables.find(
-        (obj: MainStatVariables) =>
-          obj.code === "Maakond" ||
-          obj.code === "Elukoht" ||
-          obj.code === "Haldusüksus"
-      );
-
-
-      const newRegionValues = [];
-      if (spatialRegionValue === "Maakond") {
-        for (let i = 0; i < regionFilter.valueTexts.length; i++) {
-          if (countySSR.includes(regionFilter.valueTexts[i].toLowerCase())) {
-            newRegionValues.push(regionFilter.values[i]);
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_STAT_URL}/${data}`,
+          {
+            method: "GET",
           }
-        }
-      } else if (spatialRegionValue === "Omavalitsus") {
-        for (let i = 0; i < regionFilter.valueTexts.length; i++) {
-          if (
-            ovSSR.includes(
-              regionFilter.valueTexts[i].toLowerCase().replace(/^\.+/, "")
-            )
-          ) {
-            newRegionValues.push(regionFilter.values[i]);
+        );
+        if (response.ok) {
+          const responseJson = await response.json();
+          console.log(responseJson.variables);
+          const filteredResponse = responseJson.variables.filter(
+            (obj: MainStatVariables) =>
+              obj.code !== "Maakond" &&
+              obj.code !== "Elukoht" &&
+              obj.code !== "Haldusüksus"
+          );
+
+          const regionFilter = responseJson.variables.find(
+            (obj: MainStatVariables) =>
+              obj.code === "Maakond" ||
+              obj.code === "Elukoht" ||
+              obj.code === "Haldusüksus"
+          );
+
+          const newRegionValues = [];
+          if (spatialRegionValue === "Maakond") {
+            for (let i = 0; i < regionFilter.valueTexts.length; i++) {
+              if (
+                countySSR.includes(regionFilter.valueTexts[i].toLowerCase())
+              ) {
+                newRegionValues.push(regionFilter.values[i]);
+              }
+            }
+          } else if (spatialRegionValue === "Omavalitsus") {
+            for (let i = 0; i < regionFilter.valueTexts.length; i++) {
+              if (
+                ovSSR.includes(
+                  regionFilter.valueTexts[i].toLowerCase().replace(/^\.+/, "")
+                )
+              ) {
+                newRegionValues.push(regionFilter.values[i]);
+              }
+            }
           }
+
+          regionFilter.values = newRegionValues;
+
+          setStatisticalSetup(filteredResponse);
+          setRegionCodeValues(regionFilter);
+        } else {
+          toast.error(`Something went wrong`, {
+            position: "top-center",
+            duration: 5000,
+          });
         }
+      } catch (err) {
+        toast.error(`Something went wrong`, {
+          position: "top-center",
+          duration: 5000,
+        });
       }
-
-      regionFilter.values = newRegionValues;
-
-      setStatisticalSetup(filteredResponse);
-      setRegionCodeValues(regionFilter);
     }
   };
 
@@ -296,6 +320,7 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
           </div>
         </form>
       </div>
+      <Toaster />
     </div>
   );
 };

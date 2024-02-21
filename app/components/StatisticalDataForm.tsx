@@ -12,6 +12,7 @@ import {
 } from "../hooks/useGeometriesContext";
 
 import { useBreaks, BreaksContextProps } from "../hooks/useBreaksContext";
+import {maakondStatTables, omavalitsusStatTables} from "../utils/statTables"
 
 interface MainStatVariables {
   code: string;
@@ -53,8 +54,8 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
   const [submitClicked, setSubmitClicked] = useState(false);
 
   // TODO tabeldi siduda nimedega
-  const maakondStatTables = ["", "PA119", "RV032", "RV0282U", "PMS042"];
-  const omavalitsusStatTables = ["", "RV0282U", "PMS042"];
+  // const maakondStatTables = ["", "PA119", "RV032", "RV0282U", "PMS042"];
+  // const omavalitsusStatTables = ["", "RV0282U", "PMS042"];
 
   const tablesBasedOnRegion = () => {
     switch (spatialRegionValue) {

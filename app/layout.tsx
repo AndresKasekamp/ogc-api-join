@@ -25,7 +25,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <main className="flex p-24">
+        <main className="flex p-12">
           <GeometriesProvider>
             <BreaksProvider>
               {children}

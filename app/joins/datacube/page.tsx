@@ -16,7 +16,7 @@ export default async function Home() {
   );
 
   return (
-    <main className="flex w-1/4">
+    <main>
       <DynamicStatisticalDataForm countySSR={countyNames} ovSSR={ovNames} />
     </main>
   );

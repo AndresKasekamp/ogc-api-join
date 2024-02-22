@@ -53,14 +53,17 @@ const StatisticalFileJoinForm = ({ countySSR, ovSSR }: MapProps) => {
   };
 
   return (
-    <div className="flex flex-1 flex-col px-20">
+    <div className="flex flex-1 flex-col px-10 w-screen max-w-xl mx-auto">
       <div>
         <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-white">
           OGC API - Joins
         </h2>
       </div>
       <Options />
-      <div className="mt-10">
+      <p className="mt-3 text-gray-500 dark:text-gray-400">
+        TBA. Teenus võimaldab siduda statistilise andmefaili (ilmselt csv) ja Maa-ameti ruumiandmed. Kasutada saab maakondi, omavalitsusi ja asustusüksusi. Väljundiks on GeoJSON.
+      </p>
+      <div className="mt-8">
         <form
           className="flex flex-col gap-4 pb-5 px-2"
           onSubmit={handleSubmit(onSubmit)}

@@ -242,7 +242,12 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
         </h2>
       </div>
       <Options />
-      <div className="mt-10">
+
+      <p className="mt-3 text-gray-500 dark:text-gray-400">
+        Teenus võimaldab siduda Statistikaameti tabelid datacubed ja Maa-ameti ruumiandmed. Väljundiks on GeoJSON.
+      </p>
+
+      <div className="mt-8">
         <form
           className="flex flex-col gap-4 pb-5 px-2"
           onSubmit={handleSubmit(onSubmit)}
@@ -298,8 +303,6 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
             </>
           )}
 
-
-
           <div>
             {submitClicked === false ? (
               <button
@@ -313,13 +316,10 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
             )}
           </div>
         </form>
-        
+
         {renderedGeometries !== null && (
-            <DownloadLink
-              geojsonData={renderedGeometries}
-              fileName={fileName}
-            />
-          )}
+          <DownloadLink geojsonData={renderedGeometries} fileName={fileName} />
+        )}
       </div>
       <Toaster />
     </div>

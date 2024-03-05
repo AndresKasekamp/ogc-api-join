@@ -1,9 +1,8 @@
 "use client";
 
-import React, {  useRef } from "react";
+import React, { useRef } from "react";
 
 import { onEachFeature, bounds } from "../utils/renderMap";
-
 
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
@@ -21,10 +20,10 @@ import Legend from "./Legend";
 
 import { useBreaks } from "../hooks/useBreaksContext";
 
+// TODO null väärtusega omavalitsused on praegue buggised
+
 const Map = () => {
   const { renderedGeometries }: GeometriesContextProps = useGeometries();
-
-  console.log("Rendered geometries", renderedGeometries)
 
   // Get the map instance using useRef:
   const mapRef = useRef(null);
@@ -42,16 +41,14 @@ const Map = () => {
     };
   };
 
-  const getColor = (value: string): string => {
+  const getColor = (value: string | number | null): string => {
+    if (value === null) {
+      return "#fff";
+    }
+    const stringValue = value.toString();
     for (let i = 0; i < breaks.length - 1; i++) {
-      if (value >= breaks[i] && value <= breaks[i + 1]) {
-        return [
-          "#FEB24C",
-          "#FD8D3C",
-          "#FC4E2A",
-          "#E31A1C",
-          "#BD0026",
-        ][i];
+      if (stringValue >= breaks[i] && stringValue <= breaks[i + 1]) {
+        return ["#FEB24C", "#FD8D3C", "#FC4E2A", "#E31A1C", "#BD0026"][i];
       }
     }
     return "#fff";

@@ -14,6 +14,11 @@ export interface MainStatVariables {
   values: Array<string>;
 }
 
+export interface RegionStatVariables {
+  code: string;
+  values: Array<string>;
+}
+
 export interface MapProps {
   countySSR: Array<string>;
   ovSSR: Array<string>;

@@ -2,7 +2,7 @@
 
 // @ts-ignore
 import GeoStats from "geostats";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Toaster, toast } from "sonner";
 import Loader from "./Loader";
@@ -14,6 +14,7 @@ import {
   MapProps,
   GeometriesContextProps,
   BreaksContextProps,
+  RegionStatVariables,
 } from "../utils/interfaces";
 
 import { useBreaks } from "../hooks/useBreaksContext";
@@ -36,8 +37,13 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
 
   const fileName = "your-geojson-data.geojson";
 
-  const [regionCodeValues, setRegionCodeValues] =
+  // TODO see sätitatakse ühe korra
+  const [allRegionValues, setAllRegionValues] =
     useState<MainStatVariables | null>(null);
+
+  const [regionCodeValues, setRegionCodeValues] =
+    useState<RegionStatVariables | null>(null);
+
   const spatialRegionValue = watch("spatialRegion", "");
 
   const { renderedGeometries, setRenderedGeometries }: GeometriesContextProps =
@@ -46,6 +52,34 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
   const { setBreaks }: BreaksContextProps = useBreaks();
 
   const [submitClicked, setSubmitClicked] = useState(false);
+
+  useEffect(() => {
+    if (allRegionValues !== null) {
+      const newRegionValues = [];
+      if (spatialRegionValue === "Maakond") {
+        for (let i = 0; i < allRegionValues.valueTexts.length; i++) {
+          if (countySSR.includes(allRegionValues.valueTexts[i].toLowerCase())) {
+            newRegionValues.push(allRegionValues.values[i]);
+          }
+        }
+      } else if (spatialRegionValue === "Omavalitsus") {
+        for (let i = 0; i < allRegionValues.valueTexts.length; i++) {
+          if (
+            ovSSR.includes(
+              allRegionValues.valueTexts[i].toLowerCase().replace(/^\.+/, "")
+            )
+          ) {
+            newRegionValues.push(allRegionValues.values[i]);
+          }
+        }
+      }
+
+      setRegionCodeValues({
+        code: allRegionValues.code,
+        values: newRegionValues,
+      });
+    }
+  }, [spatialRegionValue, allRegionValues]);
 
   const tablesBasedOnRegion = () => {
     switch (spatialRegionValue) {
@@ -123,7 +157,6 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
 
     Object.entries(data).forEach(([key, value]) => {
       if (allowedKeys.has(key)) {
-        console.log(key, value);
         // @ts-ignore
         postForm.append(key, value);
       }
@@ -149,7 +182,6 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
         setRenderedGeometries(responseJson);
         setSubmitClicked(false);
       } else {
-        console.error("Error here");
         toast.error(`Something went wrong`, {
           position: "top-center",
           duration: 5000,
@@ -157,7 +189,6 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
         setSubmitClicked(false);
       }
     } catch (err) {
-      console.error("Error", err);
       toast.error(`Something went wrong`, {
         position: "top-center",
         duration: 5000,
@@ -167,7 +198,6 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
   };
 
   const getStatisticalData = async (data: string) => {
-
     setStatisticalSetup([]);
     setRegionCodeValues(null);
     if (data !== "") {
@@ -180,7 +210,7 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
         );
         if (response.ok) {
           const responseJson = await response.json();
-          console.log("Response variables", responseJson.variables);
+
           const filteredResponse = responseJson.variables.filter(
             (obj: MainStatVariables) =>
               obj.code !== "Maakond" &&
@@ -195,31 +225,33 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
               obj.code === "Haldusüksus"
           );
 
-          const newRegionValues = [];
-          if (spatialRegionValue === "Maakond") {
-            for (let i = 0; i < regionFilter.valueTexts.length; i++) {
-              if (
-                countySSR.includes(regionFilter.valueTexts[i].toLowerCase())
-              ) {
-                newRegionValues.push(regionFilter.values[i]);
-              }
-            }
-          } else if (spatialRegionValue === "Omavalitsus") {
-            for (let i = 0; i < regionFilter.valueTexts.length; i++) {
-              if (
-                ovSSR.includes(
-                  regionFilter.valueTexts[i].toLowerCase().replace(/^\.+/, "")
-                )
-              ) {
-                newRegionValues.push(regionFilter.values[i]);
-              }
-            }
-          }
+          setAllRegionValues(regionFilter);
 
-          regionFilter.values = newRegionValues;
+          // const newRegionValues = [];
+          // if (spatialRegionValue === "Maakond") {
+          //   for (let i = 0; i < regionFilter.valueTexts.length; i++) {
+          //     if (
+          //       countySSR.includes(regionFilter.valueTexts[i].toLowerCase())
+          //     ) {
+          //       newRegionValues.push(regionFilter.values[i]);
+          //     }
+          //   }
+          // } else if (spatialRegionValue === "Omavalitsus") {
+          //   for (let i = 0; i < regionFilter.valueTexts.length; i++) {
+          //     if (
+          //       ovSSR.includes(
+          //         regionFilter.valueTexts[i].toLowerCase().replace(/^\.+/, "")
+          //       )
+          //     ) {
+          //       newRegionValues.push(regionFilter.values[i]);
+          //     }
+          //   }
+          // }
+
+          // regionFilter.values = newRegionValues;
 
           setStatisticalSetup(filteredResponse);
-          setRegionCodeValues(regionFilter);
+          // setRegionCodeValues(regionFilter);
         } else {
           toast.error(`Something went wrong`, {
             position: "top-center",
@@ -245,7 +277,8 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
       <Options />
 
       <p className="mt-3 text-gray-500 dark:text-gray-400">
-        Teenus võimaldab siduda Statistikaameti tabelid datacubed ja Maa-ameti ruumiandmed. Väljundiks on GeoJSON.
+        Teenus võimaldab siduda Statistikaameti tabelid datacubed ja Maa-ameti
+        ruumiandmed. Väljundiks on GeoJSON.
       </p>
 
       <div className="mt-8">

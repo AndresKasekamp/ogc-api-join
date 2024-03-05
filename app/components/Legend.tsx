@@ -9,8 +9,6 @@ function Legend({ map, breaks, getColor }: LegendProps) {
       // @ts-ignore
       const legend = L.control({ position: "bottomleft" });
 
-      console.log("Breaks", breaks);
-
       legend.onAdd = () => {
         const div = L.DomUtil.create(
           "div",
@@ -26,7 +24,7 @@ function Legend({ map, breaks, getColor }: LegendProps) {
                 index +
                 "'>" +
                 "<span class='inline-block w-4 h-4 mr-2' style='background-color: " +
-                getColor(breakValue.toString()) +
+                getColor(breakValue) +
                 ";'></span>" +
                 breakValue +
                 " - " +

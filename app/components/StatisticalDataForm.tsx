@@ -35,9 +35,9 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
     []
   );
 
+  // TODO see env-sse panna vist
   const fileName = "your-geojson-data.geojson";
 
-  // TODO see sätitatakse ühe korra
   const [allRegionValues, setAllRegionValues] =
     useState<MainStatVariables | null>(null);
 
@@ -199,7 +199,6 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
 
   const getStatisticalData = async (data: string) => {
     setStatisticalSetup([]);
-    setRegionCodeValues(null);
     if (data !== "") {
       try {
         const response = await fetch(
@@ -225,33 +224,8 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
               obj.code === "Haldusüksus"
           );
 
-          setAllRegionValues(regionFilter);
-
-          // const newRegionValues = [];
-          // if (spatialRegionValue === "Maakond") {
-          //   for (let i = 0; i < regionFilter.valueTexts.length; i++) {
-          //     if (
-          //       countySSR.includes(regionFilter.valueTexts[i].toLowerCase())
-          //     ) {
-          //       newRegionValues.push(regionFilter.values[i]);
-          //     }
-          //   }
-          // } else if (spatialRegionValue === "Omavalitsus") {
-          //   for (let i = 0; i < regionFilter.valueTexts.length; i++) {
-          //     if (
-          //       ovSSR.includes(
-          //         regionFilter.valueTexts[i].toLowerCase().replace(/^\.+/, "")
-          //       )
-          //     ) {
-          //       newRegionValues.push(regionFilter.values[i]);
-          //     }
-          //   }
-          // }
-
-          // regionFilter.values = newRegionValues;
-
           setStatisticalSetup(filteredResponse);
-          // setRegionCodeValues(regionFilter);
+          setAllRegionValues(regionFilter);
         } else {
           toast.error(`Something went wrong`, {
             position: "top-center",
@@ -268,7 +242,7 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
   };
 
   return (
-    <div className="flex flex-1 flex-col px-10 w-screen max-w-xl mx-auto">
+    <div className="flex flex-1 flex-col px-10 min-w-screen max-w-xl mx-auto">
       <div>
         <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-white">
           OGC API - Joins

@@ -10,5 +10,5 @@ export const onEachFeature = (feature: any, layer: any) => {
 
 export const bounds: LatLngBoundsExpression = [
   [57.538569, 20.909516],
-  [59.724195, 29.625813],
+  [59.841273, 29.359528],
 ];

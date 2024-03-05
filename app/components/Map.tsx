@@ -15,7 +15,7 @@ import {
   BreaksContextProps,
 } from "../utils/interfaces";
 import { useGeometries } from "../hooks/useGeometriesContext";
-// import Legend from "./Legend";
+
 import Legend from "./Legend";
 
 import { useBreaks } from "../hooks/useBreaksContext";
@@ -58,8 +58,8 @@ const Map = () => {
     <>
       <MapContainer
         style={{
-          height: "75vh",
-          width: "65vw",
+          height: "90vh",
+          width: "75vw",
         }}
         center={[58.86, 25.56]}
         bounds={bounds}

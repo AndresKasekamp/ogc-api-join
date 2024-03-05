@@ -24,7 +24,7 @@ const Options = () => {
         const isActive = pathname === link.route;
         return (
           <Link
-            key="1"
+            key={link.label}
             href={link.route}
             className={`flex justify-start rounded-lg py-2 px-4 ${
               isActive

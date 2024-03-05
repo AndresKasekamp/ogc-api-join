@@ -167,6 +167,7 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
   };
 
   const getStatisticalData = async (data: string) => {
+
     setStatisticalSetup([]);
     setRegionCodeValues(null);
     if (data !== "") {
@@ -179,7 +180,7 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
         );
         if (response.ok) {
           const responseJson = await response.json();
-          console.log(responseJson.variables);
+          console.log("Response variables", responseJson.variables);
           const filteredResponse = responseJson.variables.filter(
             (obj: MainStatVariables) =>
               obj.code !== "Maakond" &&
@@ -262,7 +263,6 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
             <select
               {...register("spatialRegion", { required: true })}
               defaultValue=""
-              // onChange={(e) => {console.log(e.target.value)}}
               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
             >
               <option key="" value=""></option>

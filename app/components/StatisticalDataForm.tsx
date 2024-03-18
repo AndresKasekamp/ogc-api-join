@@ -170,7 +170,7 @@ const StatisticalDataForm = ({ countySSR, ovSSR }: MapProps) => {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/join", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_OGC_API_JOIN_URL}`, {
         method: "POST",
         body: postForm,
       });
